@@ -1,24 +1,23 @@
 {% set name = "hsluv" %}
-{% set version = "5.0.3" %}
+{% set version = "5.0.4" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 2586bcb61d29d76e89e563a6836df24d86939961c9657f129a59f7617de45377
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 2281f946427a882010042844a38c7bbe9e0d0aaf9d46babe46366ed6f169b72e
 
 build:
   number: 0
-  script: {{ PYTHON }} -m pip install . -vv
-  skip: True  # [py<36]
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true  # [py<37]
 
 requirements:
   host:
     - python
     - pip
-    - wheel
     - setuptools
   run:
     - python
@@ -26,8 +25,17 @@ requirements:
     - setuptools >=38.6.0
 
 test:
+  source_files:
+    - tests
   imports:
     - hsluv
+  requires:
+    - pip
+    - pytest
+  commands:
+    - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
+    - pytest -v tests
 
 about:
   home: https://github.com/hsluv/hsluv-python
@@ -40,6 +48,7 @@ about:
     in Python (revision 4).
   doc_url: https://github.com/hsluv/hsluv-python
   dev_url: https://github.com/hsluv/hsluv-python
+
 extra:
   recipe-maintainers:
     - hmaarrfk
